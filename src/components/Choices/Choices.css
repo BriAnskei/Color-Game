@@ -1,0 +1,65 @@
+.choices-container {
+    margin:  auto;
+    height: 50vh;
+    max-width: 50vw;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    column-gap: 100px;
+   
+   justify-content: center;
+   
+}
+
+
+.choices-container .choice-progress {
+    text-align: center;
+
+    border-radius: 30px;
+    width: 7vw;
+    margin: 5px;
+    height: auto;
+    cursor: pointer;
+    position: relative;
+ 
+   
+    
+ /* Set the text vertically */
+     writing-mode: vertical-lr;
+    overflow: hidden;
+}
+
+.choices-container div span {
+   font-size: 3em;
+}
+
+.progress-bar-vertical {
+    display: flex;
+    align-items: flex-end;
+    
+  
+    flex-direction: column-reverse; 
+    /* Grow bars upwards */
+  }
+  
+  .progress-bar-vertical .progress-bar {
+    width: 100%;
+    height: 0;
+  }
+
+  .choice-progress .choices-text {
+    position: absolute;
+   text-align: center;
+   width: 100%;
+   line-height: 1.2;
+   top: 50%;
+   left: 70%;
+
+   transform: translate(-50%, -50%);
+   color: rgb(109, 53, 53);
+   font-weight: bold;
+   pointer-events: none; /* Prevent interaction */
+  }
+  
+  
+
+  

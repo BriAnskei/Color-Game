@@ -1,0 +1,39 @@
+.display-container {
+    height: 35vh;
+    margin: 6px;
+    padding: 5px;
+    }
+
+
+.upper-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.upper-text .current-score {
+    font-size: 2vw;
+    font-weight: 300;
+}
+.main-text {
+    max-height: 80%;
+    width: 68%;
+
+    text-align: center;
+    background-color: rgb(17, 0, 255);
+    border-radius: 9px;
+    margin: auto;
+    overflow: hidden;
+}
+
+.main-text span {
+    font-size: 10vw;
+}
+
+
+
+
+
+
+
+

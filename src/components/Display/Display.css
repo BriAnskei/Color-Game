@@ -9,6 +9,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+
 }
 
 .upper-text .current-score {
@@ -30,8 +31,20 @@
     font-size: 10vw;
 }
 
+/* animate */
+
+.lives-animation {
+    color: red;
+    font-size: 20px;
+    font-weight: 900;
+}
 
 
+.score-animation {
+    color: yellow;
+    font-size: 20px;
+    font-weight: 900;
+}
 
 
 

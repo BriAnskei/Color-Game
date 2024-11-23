@@ -6,7 +6,7 @@ const Choices = () => {
 
   if (!context) return <div>Loading .....</div>;
 
-  const { progress, choicesColors, setAnswer } = context;
+  const { progress, choicesColors, checkAnswer } = context;
 
   return (
     <>
@@ -17,7 +17,7 @@ const Choices = () => {
             className="choice-progress progress-bar-vertical"
             style={{ backgroundColor: `${color}` }}
             onClick={() => {
-              setAnswer(choicesColors[index]);
+              checkAnswer(choicesColors[index]);
             }}
           >
             <div

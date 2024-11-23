@@ -9,9 +9,10 @@ interface ContextType {
   currentColor: string;
   choicesColors: string[];
   colors: string[];
-  setAnswer: (ans: string) => void;
+  checkAnswer: (answer: string) => void;
   score: number;
   lives: number;
+  highestScore: number;
 }
 
 export const StoreContext = createContext<ContextType | undefined>(undefined);
@@ -21,15 +22,15 @@ const StoreContextProvider: React.FC<Prop> = (props) => {
 
   const [choicesColors, setChoicesColors] = useState<string[]>(colors);
   const [progress, setProgress] = useState(0);
-  const [currentColor, setCurrentColor] = useState(colors[0]);
-  const [answer, setAnswer] = useState("");
+  const [currentColor, setCurrentColor] = useState("");
   const [reset, setReset] = useState(false);
 
   // Stats
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
+  const [highestScore, setHighestScore] = useState(0);
 
-  // Fisher-Yates shuffle function
+  // Fisher-Yates shuffle function, set the array of choices index to ramdom every trigger
   const shuffleColors = (arr: string[]) => {
     let shuffledArr = [...arr];
     for (let i = shuffledArr.length - 1; i > 0; i--) {
@@ -48,27 +49,51 @@ const StoreContextProvider: React.FC<Prop> = (props) => {
     setChoicesColors(shuffledColors); // Update all progress bar colors with shuffled colors
   };
 
-  useEffect(() => {
-    if (answer != currentColor) {
-      console.log(`Wrong!! ${lives} left`);
-      setLives((prev) => prev - 1);
+  const checkAnswer = (answer: string) => {
+    if (answer !== currentColor) {
+      if (lives === 1) {
+        alert(`Game Over! highest Score: ${highestScore}`);
+        saveNewRecord();
+      } else {
+        console.log(`Wrong!! ${lives} left`);
+        setLives((prev) => prev - 1);
+      }
     } else {
-      setScore((prev) => prev + 2);
+      setScore((prev) => {
+        const currentScore = prev + 2;
+        setHighestScore((prev) => (prev > currentScore ? prev : currentScore));
+        return currentScore;
+      });
+      setColor(); //Ramdomize colors
+
+      // Reset time progress
       setProgress(0);
       setReset((prev) => !prev);
-      setColor();
     }
-  }, [answer]);
+  };
+
+  const saveNewRecord = () => {
+    sessionStorage.setItem("highestScore", highestScore.toString());
+  };
+
+  useEffect(() => {
+    setColor();
+    const scoreData = sessionStorage.getItem("highestScore");
+
+    if (scoreData) {
+      setHighestScore(Number(scoreData));
+    }
+  }, []);
 
   useEffect(() => {
     if (progress === 100) {
-      if (lives > 0) {
+      if (lives !== 1) {
         setLives((prev) => prev - 1);
         setReset((prev) => !prev);
       } else {
-        alert("Times up!!");
-        setColor();
+        alert(`Game Over! highest Score: ${highestScore}`);
       }
+      saveNewRecord();
     }
   }, [progress]);
 
@@ -87,8 +112,9 @@ const StoreContextProvider: React.FC<Prop> = (props) => {
     currentColor,
     choicesColors,
     colors,
-    setAnswer,
+    checkAnswer,
     score,
+    highestScore,
     lives,
   };
   return (

@@ -1,22 +1,27 @@
 .display-container {
     height: 35vh;
-    margin: 6px;
-    padding: 5px;
-    }
+}
 
 
 .upper-text {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 12px;
+    height: auto;
+    margin: 0;
 
+    /* short hand paddding */
+    padding: 0 12px;
 }
+
 
 .upper-text .current-score {
     font-size: 2vw;
     font-weight: 300;
 }
 .main-text {
+    
     max-height: 80%;
     width: 68%;
 
@@ -29,12 +34,19 @@
 
 .main-text span {
     font-size: 10vw;
+  
 }
 
 /* animate */
 
-.lives-animation {
+.lives-deduc-animation {
     color: red;
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.lives-increase-animation {
+    color: green;
     font-size: 20px;
     font-weight: 900;
 }
@@ -42,7 +54,7 @@
 
 .score-animation {
     color: yellow;
-    font-size: 20px;
+
     font-weight: 900;
 }
 

@@ -1,11 +1,12 @@
 import { createContext, ReactNode, useEffect, useState } from "react";
+import { Prev } from "react-bootstrap/esm/PageItem";
 
 interface Prop {
   children: ReactNode;
 }
 
 interface ContextType {
-  progress: number;
+  timer: number;
   currentColor: string;
   choicesColors: string[];
   colors: string[];
@@ -13,63 +14,104 @@ interface ContextType {
   score: number;
   lives: number;
   highestScore: number;
+  answer: string;
 }
 
 export const StoreContext = createContext<ContextType | undefined>(undefined);
 
 const StoreContextProvider: React.FC<Prop> = (props) => {
-  const colors = ["RED", "BLUE", "GREEN", "YELLOW", "ORANGE", "PURPLE"];
+  const colors = [
+    "RED",
+    "BLUE",
+    "GREEN",
+    "YELLOW",
+    "ORANGE",
+    "PURPLE",
 
-  const [choicesColors, setChoicesColors] = useState<string[]>(colors);
-  const [progress, setProgress] = useState(0);
+    "GRAY",
+    "BROWN",
+    "PINK",
+    "MAGENTA",
+    "MAROON",
+    "NAVY",
+    "OLIVE",
+    "TEAL",
+    "VIOLET",
+    "INDIGO",
+    "LIME",
+    "GOLD",
+    "SILVER",
+    "CORAL",
+    "PLUM",
+    "CRIMSON",
+  ];
+
   const [currentColor, setCurrentColor] = useState("");
+  const [choicesColors, setChoicesColors] = useState<string[]>([]);
+  const [timer, setProgress] = useState(0);
   const [reset, setReset] = useState(false);
+  const [answer, setAnswer] = useState("");
 
   // Stats
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [highestScore, setHighestScore] = useState(0);
 
-  // Fisher-Yates shuffle function, set the array of choices index to ramdom every trigger
-  const shuffleColors = (arr: string[]) => {
-    let shuffledArr = [...arr];
-    for (let i = shuffledArr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffledArr[i], shuffledArr[j]] = [shuffledArr[j], shuffledArr[i]];
-    }
-    return shuffledArr;
-  };
+  // Counter for stats
+  const [_, setCounter] = useState(0);
 
   const setColor = () => {
-    const ramdomIdex = Math.floor(Math.random() * colors.length);
-    setCurrentColor(choicesColors[ramdomIdex]);
+    const ramdomColors: string[] = [];
+    const selectedIndices = new Set<number>();
 
-    // Shuffle the colors array to ensure no repeated colors
-    const shuffledColors = shuffleColors(colors);
-    setChoicesColors(shuffledColors); // Update all progress bar colors with shuffled colors
+    while (ramdomColors.length < 6) {
+      const randomIndex = Math.floor(Math.random() * colors.length);
+      if (!selectedIndices.has(randomIndex)) {
+        ramdomColors.push(colors[randomIndex]);
+        selectedIndices.add(randomIndex);
+      }
+    }
+
+    // Update both states correctly
+
+    setCurrentColor(
+      ramdomColors[Math.floor(Math.random() * ramdomColors.length)]
+    );
+    setChoicesColors(ramdomColors);
   };
 
   const checkAnswer = (answer: string) => {
+    setAnswer(answer);
     if (answer !== currentColor) {
       if (lives === 1) {
         alert(`Game Over! highest Score: ${highestScore}`);
         saveNewRecord();
       } else {
-        console.log(`Wrong!! ${lives} left`);
         setLives((prev) => prev - 1);
       }
+
+      setCounter(0);
     } else {
       setScore((prev) => {
         const currentScore = prev + 2;
         setHighestScore((prev) => (prev > currentScore ? prev : currentScore));
         return currentScore;
       });
-      setColor(); //Ramdomize colors
 
-      // Reset time progress
-      setProgress(0);
-      setReset((prev) => !prev);
+      setCounter((prev) => {
+        const newCount = prev + 1;
+        // Increse every 6 correct answer
+        if (newCount % 2 === 0) {
+          setLives((prev) => prev + 1);
+        }
+        return newCount;
+      });
     }
+
+    // Reset time progress
+    setProgress(0);
+    setColor(); // Ramdomize colors
+    setReset((prev) => !prev);
   };
 
   const saveNewRecord = () => {
@@ -77,38 +119,40 @@ const StoreContextProvider: React.FC<Prop> = (props) => {
   };
 
   useEffect(() => {
-    setColor();
     const scoreData = sessionStorage.getItem("highestScore");
 
     if (scoreData) {
       setHighestScore(Number(scoreData));
     }
+    setColor();
   }, []);
 
   useEffect(() => {
-    if (progress === 100) {
+    if (timer === 100) {
       if (lives !== 1) {
         setLives((prev) => prev - 1);
         setReset((prev) => !prev);
       } else {
+        saveNewRecord();
         alert(`Game Over! highest Score: ${highestScore}`);
       }
-      saveNewRecord();
+
+      setColor();
     }
-  }, [progress]);
+  }, [timer]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        return prev >= 100 ? 0 : prev + 1;
-      });
-    }, 10);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setProgress((prev) => {
+  //       return prev >= 100 ? 0 : prev + 1;
+  //     });
+  //   }, 10);
 
-    return () => clearInterval(interval);
-  }, [reset]);
+  //   return () => clearInterval(interval);
+  // }, [reset]);
 
   const contaxtApi: ContextType = {
-    progress,
+    timer,
     currentColor,
     choicesColors,
     colors,
@@ -116,6 +160,7 @@ const StoreContextProvider: React.FC<Prop> = (props) => {
     score,
     highestScore,
     lives,
+    answer,
   };
   return (
     <StoreContext.Provider value={contaxtApi}>

@@ -6,12 +6,12 @@ const Choices = () => {
 
   if (!context) return <div>Loading .....</div>;
 
-  const { progress, choicesColors, checkAnswer } = context;
+  const { timer, choicesColors, checkAnswer } = context;
 
   return (
     <>
       <div className="choices-container">
-        {choicesColors.map((color, index) => (
+        {choicesColors.slice(0, 6).map((color, index) => (
           <div
             key={index}
             className="choice-progress progress-bar-vertical"
@@ -24,11 +24,11 @@ const Choices = () => {
               className="progress-bar"
               role="progressbar"
               style={{
-                height: `${progress}%`,
+                height: `${timer}%`,
                 backgroundColor: `${color}`,
                 filter: "brightness(0.7)",
               }}
-              aria-valuenow={progress}
+              aria-valuenow={timer}
               aria-valuemin={0}
               aria-valuemax={100}
             ></div>

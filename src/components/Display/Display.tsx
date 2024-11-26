@@ -1,62 +1,83 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import "./Display.css";
 import { StoreContext } from "../../context/StoreContext";
+
 const Display = () => {
   const context = useContext(StoreContext);
 
-  const [livesAni, setLivesAni] = useState(false);
+  const [livesAni, setLivesAni] = useState("");
   const [scoreAni, setScoreAni] = useState(false);
+  const [highestAni, setHighestAni] = useState(false);
+  const prevLivesRef = useRef<number | null>(null); // to track previous value of lives
 
   if (!context) return <div>Loading.....</div>;
 
   const { currentColor, score, lives, highestScore } = context;
 
   useEffect(() => {
-    setLivesAni(true);
-    const timeout = setTimeout(() => {
-      setLivesAni(false);
-    }, 500); // set animation to 500ms
-
-    return () => clearTimeout(timeout);
+    if (prevLivesRef.current !== null) {
+      if (lives > prevLivesRef.current) {
+        setLivesAni("lives-increase-animation");
+      } else if (lives < prevLivesRef.current) {
+        setLivesAni("lives-deduc-animation");
+      }
+      const timeout = setTimeout(() => {
+        setLivesAni(""); // Reset animation after 500ms
+      }, 500);
+      prevLivesRef.current = lives;
+      return () => clearTimeout(timeout);
+    } else {
+      prevLivesRef.current = lives; // Set the initial previous value
+    }
   }, [lives]);
+
+  useEffect(() => {
+    console.log(lives, prevLivesRef.current, livesAni);
+  }, [lives, prevLivesRef.current, livesAni]);
 
   useEffect(() => {
     setScoreAni(true);
     const timeout = setTimeout(() => {
       setScoreAni(false);
-    }, 500); // set animation to 500ms
+    }, 500); // Reset animation after 500ms
 
     return () => clearTimeout(timeout);
   }, [score]);
+
+  useEffect(() => {
+    setHighestAni(true);
+    const timeout = setTimeout(() => {
+      setHighestAni(false);
+    }, 500); // Reset animation after 500ms
+
+    return () => clearTimeout(timeout);
+  }, [highestScore]);
 
   return (
     <div className="display-container">
       <div className="upper-text">
         <span>
-          Lives:{" "}
-          <span className={livesAni ? "lives-animation" : ""}>{lives}</span>
+          Lives: <span className={livesAni}>{lives}</span>
         </span>
         <span className="current-score">
           Score:{" "}
           <span className={scoreAni ? "score-animation" : ""}>{score}</span>
         </span>
-        <span>Highest Score: {highestScore}</span>
+        <span>
+          Highest Score:{" "}
+          <span className={highestAni ? "score-animation" : ""}>
+            {highestScore}
+          </span>
+        </span>
       </div>
       <div className="main-text">
-        <div className="progress-bar-vertical">
-          <div
-            className="progress-bar"
-            role="progressbar"
-            style={{
-              height: `90%`,
-              backgroundColor: `${currentColor}`,
-            }}
-            aria-valuenow={90}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          >
-            <span>{currentColor}</span>
-          </div>
+        <div
+          style={{
+            height: `90%`,
+            backgroundColor: `${currentColor}`,
+          }}
+        >
+          <span>{currentColor}</span>
         </div>
       </div>
     </div>

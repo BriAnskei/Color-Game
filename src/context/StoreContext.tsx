@@ -1,5 +1,4 @@
 import { createContext, ReactNode, useEffect, useState } from "react";
-import { Prev } from "react-bootstrap/esm/PageItem";
 
 interface Prop {
   children: ReactNode;
@@ -14,7 +13,6 @@ interface ContextType {
   score: number;
   lives: number;
   highestScore: number;
-  answer: string;
 }
 
 export const StoreContext = createContext<ContextType | undefined>(undefined);
@@ -27,7 +25,6 @@ const StoreContextProvider: React.FC<Prop> = (props) => {
     "YELLOW",
     "ORANGE",
     "PURPLE",
-
     "GRAY",
     "BROWN",
     "PINK",
@@ -50,7 +47,6 @@ const StoreContextProvider: React.FC<Prop> = (props) => {
   const [choicesColors, setChoicesColors] = useState<string[]>([]);
   const [timer, setProgress] = useState(0);
   const [reset, setReset] = useState(false);
-  const [answer, setAnswer] = useState("");
 
   // Stats
   const [score, setScore] = useState(0);
@@ -81,36 +77,55 @@ const StoreContextProvider: React.FC<Prop> = (props) => {
   };
 
   const checkAnswer = (answer: string) => {
-    setAnswer(answer);
     if (answer !== currentColor) {
-      if (lives === 1) {
-        alert(`Game Over! highest Score: ${highestScore}`);
-        saveNewRecord();
-      } else {
-        setLives((prev) => prev - 1);
-      }
-
-      setCounter(0);
+      handleIncorrectAnswer();
     } else {
-      setScore((prev) => {
-        const currentScore = prev + 2;
-        setHighestScore((prev) => (prev > currentScore ? prev : currentScore));
-        return currentScore;
-      });
-
-      setCounter((prev) => {
-        const newCount = prev + 1;
-        // Increse every 6 correct answer
-        if (newCount % 2 === 0) {
-          setLives((prev) => prev + 1);
-        }
-        return newCount;
-      });
+      handleCorrectAnswer();
     }
 
-    // Reset time progress
+    resetGameState();
+  };
+
+  const handleIncorrectAnswer = () => {
+    if (lives === 1) {
+      alert(`Game Over! Highest Score: ${highestScore}`);
+      saveNewRecord();
+    } else {
+      setLives((prev) => prev - 1);
+    }
+
+    setCounter(0);
+  };
+
+  const handleCorrectAnswer = () => {
+    updateScore();
+    updateCounter();
+  };
+
+  const updateScore = () => {
+    setScore((prev) => {
+      const newScore = prev + 2;
+      setHighestScore((prev) => (prev > newScore ? prev : newScore));
+      return newScore;
+    });
+  };
+
+  const updateCounter = () => {
+    setCounter((prev) => {
+      const newCount = prev + 1;
+
+      // Increase lives every 6 correct answers
+      if (newCount % 6 === 0) {
+        setLives((prev) => prev + 1);
+      }
+
+      return newCount;
+    });
+  };
+
+  const resetGameState = () => {
     setProgress(0);
-    setColor(); // Ramdomize colors
+    setColor(); // Randomize colors
     setReset((prev) => !prev);
   };
 
@@ -141,15 +156,15 @@ const StoreContextProvider: React.FC<Prop> = (props) => {
     }
   }, [timer]);
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setProgress((prev) => {
-  //       return prev >= 100 ? 0 : prev + 1;
-  //     });
-  //   }, 10);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        return prev >= 100 ? 0 : prev + 1;
+      });
+    }, 10);
 
-  //   return () => clearInterval(interval);
-  // }, [reset]);
+    return () => clearInterval(interval);
+  }, [reset]);
 
   const contaxtApi: ContextType = {
     timer,
@@ -160,7 +175,6 @@ const StoreContextProvider: React.FC<Prop> = (props) => {
     score,
     highestScore,
     lives,
-    answer,
   };
   return (
     <StoreContext.Provider value={contaxtApi}>
